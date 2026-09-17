@@ -1,0 +1,22 @@
+# Build output. Every image in here embeds the whole of Combat, so this has to
+# stay out for the same reason rom/ does, quite apart from being generated.
+build/
+
+# THE CARTRIDGE ITSELF IS NOT IN THIS REPOSITORY.
+#
+# Combat is Atari's, 1977, and the commented disassembly is Harry Dodgson's,
+# Nick Bensema's and Roger Williams' work on top of it. This project is a patch
+# and a server; it is not a place to redistribute either. Supply your own dump
+# and disassembly -- see rom/README.md for the two files and the md5 the build
+# checks against.
+rom/*.bin
+rom/*.asm
+
+# Python
+__pycache__/
+*.pyc
+
+# Editors and the usual detritus
+*.swp
+*~
+.DS_Store
