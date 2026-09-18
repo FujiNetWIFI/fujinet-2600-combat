@@ -31,6 +31,23 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 posts = []
 fails = []
 
+def relay_argv():
+    """The relay to test: SERVER=py (default) or SERVER=c.
+
+    server/combat_relay_server.py stays the canonical reference implementation.
+    SERVER=c runs the C port in server/c/, which tools/server_diff.py holds to
+    byte-for-byte equality with it on the wire and in the log.
+    """
+    impl = os.environ.get("SERVER", "py")
+    if impl == "py":
+        return [sys.executable, os.path.join(HERE, "server/combat_relay_server.py")]
+    if impl == "c":
+        binary = os.path.join(HERE, "server/c/combat-relay")
+        if not os.access(binary, os.X_OK):
+            sys.exit("SERVER=c: %s is not built -- run `make -C server/c`" % binary)
+        return [binary]
+    sys.exit("SERVER must be 'py' or 'c' (got %r)" % impl)
+
 
 def check(cond, what):
     print(("  ok   " if cond else "  FAIL ") + what)
@@ -61,8 +78,8 @@ def main():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
 
     relay = subprocess.Popen(
-        [sys.executable, os.path.join(HERE, "server/combat_relay_server.py"),
-         "--host", "127.0.0.1", "--port", "9641",
+        relay_argv() +
+        ["--host", "127.0.0.1", "--port", "9641",
          "--lobby-url", "http://127.0.0.1:%d/server" % port,
          # A short keepalive, so the test does not take five minutes.
          "--game-name", "Combat", "--server-name", "Combat Netplay"],
